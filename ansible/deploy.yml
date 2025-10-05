@@ -1,0 +1,55 @@
+- name: Deploy Next.js app to production
+  hosts: production
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    app_port: 3005
+    app_name: "tmp_email"
+    app_path: "/var/www/tmp_email"
+
+  tasks:
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_path }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Upload built app
+      synchronize:
+        src: ../build/
+        dest: "{{ app_path }}/"
+        rsync_opts:
+          - "--chown={{ ansible_user }}:{{ ansible_user }}"
+
+    - name: Install dependencies
+      shell: |
+        cd {{ app_path }} && \
+        npm install --production --legacy-peer-deps
+      args:
+        executable: /bin/bash
+
+    - name: Manage PM2 process
+      block:
+        - name: Check running processes
+          command: pm2 jlist
+          register: pm2_processes
+          changed_when: false
+          ignore_errors: yes
+
+        - name: Stop existing instance if running
+          shell: |
+            pm2 delete {{ app_name }} || true
+          args:
+            executable: /bin/bash
+          when: >
+            pm2_processes is succeeded and 
+            (app_name in (pm2_processes.stdout | from_json | map(attribute='name') | list)) 
+
+        - name: Start application
+          shell: |
+            cd {{ app_path }} && \
+            pm2 start npm --name "{{ app_name }}" -- start -- --port {{ app_port }}
+          environment:
+            PORT: "{{ app_port }}"

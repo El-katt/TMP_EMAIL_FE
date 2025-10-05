@@ -1,0 +1,2 @@
+[production]
+server ansible_host=injected_at_runtime ansible_user=injected_at_runtime ansible_ssh_private_key_file=/home/runner/.ssh/deploy_key
