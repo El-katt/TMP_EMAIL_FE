@@ -16,11 +16,11 @@ export default function HomePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (emailPrefix.trim()) {
-      const cleanPrefix = emailPrefix
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "")
-      router.push(`/inbox/${cleanPrefix}`)
+      // const cleanPrefix = emailPrefix
+      //   .trim()
+      //   .toLowerCase()
+      //   .replace(/[^a-z0-9]/g, "")
+      router.push(`/inbox/${emailPrefix}`)
     }
   }
 

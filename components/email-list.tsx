@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Trash2, Mail, MailOpen } from "lucide-react"
-import type { Email } from "@/lib/mock-emails"
+import type { Email } from "@/lib/email"
 import { formatDistanceToNow } from "date-fns"
 
 interface EmailListProps {
@@ -29,7 +29,7 @@ export function EmailList({ emails, selectedEmail, onSelectEmail, onDeleteEmail,
     )
   }
 
-  if (emails.length === 0) {
+  if (emails && emails.length === 0) {
     return (
       <Card className="p-12 text-center">
         <Mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -38,9 +38,12 @@ export function EmailList({ emails, selectedEmail, onSelectEmail, onDeleteEmail,
       </Card>
     )
   }
-
+// console.log('emails:', emails);
+// console.log('emails type:', typeof emails);
+// console.log('is array?', Array.isArray(emails));
   return (
     <div className="space-y-2">
+      
       {emails.map((email) => (
         <Card
           key={email.id}
@@ -71,7 +74,7 @@ export function EmailList({ emails, selectedEmail, onSelectEmail, onDeleteEmail,
             </Button>
           </div>
           <h3 className={`text-sm mb-1 truncate ${!email.read ? "font-semibold" : ""}`}>{email.subject}</h3>
-          <p className="text-xs text-muted-foreground truncate mb-2">{email.preview}</p>
+          {/* <p className="text-xs text-muted-foreground truncate mb-2">{email.preview}</p> */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(email.date, { addSuffix: true })}

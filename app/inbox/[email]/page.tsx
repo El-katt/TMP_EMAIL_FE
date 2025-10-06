@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Mail, ArrowLeft, RefreshCw, Trash2, Clock, User } from "lucide-react"
 import { EmailList } from "@/components/email-list"
 import { EmailDetail } from "@/components/email-detail"
-import { generateMockEmails, type Email } from "@/lib/mock-emails"
+import { type Email } from "@/lib/email"
+import {getEmails } from "@/lib/storage"
 
 export default function InboxPage() {
   const params = useParams()
@@ -23,18 +24,18 @@ export default function InboxPage() {
   useEffect(() => {
     // Simulate loading emails
     setIsLoading(true)
-    setTimeout(() => {
-      const mockEmails = generateMockEmails(email)
-      setEmails(mockEmails)
+    setTimeout(async () => {
+      const storedemails = await getEmails(fullEmail);
+      setEmails(storedemails)
       setIsLoading(false)
     }, 500)
   }, [email])
 
   const handleRefresh = () => {
     setIsLoading(true)
-    setTimeout(() => {
-      const mockEmails = generateMockEmails(email)
-      setEmails(mockEmails)
+    setTimeout(async () => {
+      const storedemails = await getEmails(fullEmail)
+      setEmails(storedemails)
       setIsLoading(false)
     }, 500)
   }

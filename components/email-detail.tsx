@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Trash2, Mail } from "lucide-react"
-import type { Email } from "@/lib/mock-emails"
+import type { Email } from "@/lib/email"
 import { format } from "date-fns"
 
 interface EmailDetailProps {
@@ -45,7 +45,7 @@ export function EmailDetail({ email, onDelete }: EmailDetailProps) {
       <Separator className="mb-6" />
 
       <div className="prose prose-sm max-w-none">
-        <div className="whitespace-pre-wrap text-foreground leading-relaxed">{email.body}</div>
+        <div className="whitespace-pre-wrap text-foreground leading-relaxed">{email.text}</div>
       </div>
     </Card>
   )
