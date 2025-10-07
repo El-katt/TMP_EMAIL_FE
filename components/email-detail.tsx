@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator"
 import { Trash2, Mail } from "lucide-react"
 import type { Email } from "@/lib/email"
 import { format } from "date-fns"
+import { useMemo } from "react"
+import DOMPurify from "dompurify"
 
 interface EmailDetailProps {
   email: Email | null
@@ -13,6 +15,32 @@ interface EmailDetailProps {
 }
 
 export function EmailDetail({ email, onDelete }: EmailDetailProps) {
+  // Sanitize and prepare email content
+  const sanitizedContent = useMemo(() => {
+    if (!email) return null
+
+    // If HTML content is available, sanitize it
+    if (email.html) {
+      return {
+        type: 'html' as const,
+        content: DOMPurify.sanitize(email.html, {
+          ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'div', 'span', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'thead', 'tbody', 'tr', 'td', 'th', 'img', 'blockquote', 'pre', 'code'],
+          ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'title', 'class', 'style']
+        })
+      }
+    }
+
+    // Fallback to plain text if available
+    if (email.text) {
+      return {
+        type: 'text' as const,
+        content: email.text
+      }
+    }
+
+    return null
+  }, [email])
+
   if (!email) {
     return (
       <Card className="p-12 text-center h-full flex items-center justify-center">
@@ -44,9 +72,50 @@ export function EmailDetail({ email, onDelete }: EmailDetailProps) {
 
       <Separator className="mb-6" />
 
-      <div className="prose prose-sm max-w-none">
-        <div className="whitespace-pre-wrap text-foreground leading-relaxed">{email.text}</div>
+      <div className="email-content">
+        {sanitizedContent?.type === 'html' ? (
+          <div
+            className="prose prose-sm max-w-none dark:prose-invert"
+            dangerouslySetInnerHTML={{ __html: sanitizedContent.content }}
+          />
+        ) : sanitizedContent?.type === 'text' ? (
+          <pre className="whitespace-pre-wrap text-foreground leading-relaxed font-sans text-sm">
+            {sanitizedContent.content}
+          </pre>
+        ) : (
+          <p className="text-muted-foreground italic">No content available</p>
+        )}
       </div>
+
+      <style jsx>{`
+        .email-content {
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+        }
+
+        .email-content img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        .email-content a {
+          color: hsl(var(--primary));
+          text-decoration: underline;
+        }
+
+        .email-content table {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 1em 0;
+        }
+
+        .email-content th,
+        .email-content td {
+          border: 1px solid hsl(var(--border));
+          padding: 0.5em;
+          text-align: left;
+        }
+      `}</style>
     </Card>
   )
 }
